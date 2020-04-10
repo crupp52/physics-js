@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <label>Kezdősebesség</label>
+        <input type="text">
+    </div>
+    <div id="tester"></div>
+    <script>
+        var vStart = 100
+        var alphaAngle = 30 * Math.PI / 180
+        var cosAlpha = Math.cos(alphaAngle)
+        var sinAlpha = Math.sin(alphaAngle)        
+
+        var data = calcData()
+        plotlyDraw(data)
+
+        function calcData(){
+            var x = []
+            var y = []
+            
+            var i = 0
+            do {
+                yActual = vStart * i * sinAlpha - 5 * i * i
+                x[i] = vStart * i * cosAlpha
+                y[i] = yActual
+                i++
+            }
+            while (i < 12);
+
+            console.log([{x, y}])
+
+            return [{x, y}]
+        }
+
+        function plotlyDraw(data){
+            TESTER = document.getElementById('tester')
+            Plotly.newPlot( TESTER, data, {
+                margin: { t: 0 } } )
+        }
+    </script>
+</body>
+</html>
