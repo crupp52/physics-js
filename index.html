@@ -3,46 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <title>Document</title>
 </head>
 <body>
-    <div>
-        <label>Kezdősebesség</label>
-        <input type="text">
+    <div class="container">
+        <div class="form-group">
+            <label for="start-speed">Kezdősebesség</label>
+            <input type="text" class="form-control" id="start-speed">
+        </div>
+        <div class="form-group">
+            <label for="angle">Hajítás szöge (fokban)</label>
+            <input type="text" class="form-control" id="angle">
+        </div>
+        <button onclick="onClickCalulate()" class="btn btn-primary btn-block">Számítás</button>
+        <div id="tester"></div>
     </div>
-    <div id="tester"></div>
     <script>
-        var vStart = 100
-        var alphaAngle = 30 * Math.PI / 180
-        var cosAlpha = Math.cos(alphaAngle)
-        var sinAlpha = Math.sin(alphaAngle)        
+        let vStart
+        let alphaAngle
+        let cosAlpha
+        let sinAlpha
 
-        var data = calcData()
-        plotlyDraw(data)
+        let x = []
+        let y = []
+        let t = []
 
-        function calcData(){
-            var x = []
-            var y = []
-            
-            var i = 0
+        function onClickCalulate(){
+            vStart = document.getElementById("start-speed").value
+            alphaAngle = document.getElementById("angle").value * Math.PI / 180
+            cosAlpha = Math.cos(alphaAngle)
+            sinAlpha = Math.sin(alphaAngle)
+
+            calcData()
+            plotlyDraw()
+        }
+
+        function calcData(){            
+            let i = 0
             do {
-                yActual = vStart * i * sinAlpha - 5 * i * i
-                x[i] = vStart * i * cosAlpha
+                yActual = vStart * (i / 10) * sinAlpha - 5 * (i / 10) * (i / 10)
+                x[i] = vStart * (i / 10) * cosAlpha
+                t[i] = i / 10
                 y[i] = yActual
                 i++
             }
-            while (i < 12);
-
-            console.log([{x, y}])
-
-            return [{x, y}]
+            while (yActual >= 0);
         }
 
-        function plotlyDraw(data){
+        function plotlyDraw(){
             TESTER = document.getElementById('tester')
-            Plotly.newPlot( TESTER, data, {
-                margin: { t: 0 } } )
+
+            const text = t.map((row, i) => row.map((item, j) => {
+            return `
+            A: ${i}<br>
+            B: ${j}<br>
+            Value: ${item.toFixed(4)}
+            ` 
+            }))
+
+            const data = [
+                {
+                    x: x,
+                    y: y,
+                    text: text,
+                    hoverinfo: 'text',
+                    zsmooth: 'best'
+                }
+            ]
+
+            let layout = {
+                width: 800,
+                height: 500,
+                margin: {t: 0},
+                xaxis: {
+                    nticks: 10,
+                    range: [0, 300]
+                },
+                yaxis: {
+                    scaleanchor: "x",
+                    range: [0, 100]
+                }
+            };
+
+            Plotly.newPlot(TESTER, data, layout)
         }
     </script>
 </body>
