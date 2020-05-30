@@ -86,6 +86,7 @@
         <footer><p>&copy; Copyright Zuck Levente, 2020</p></footer>
     </div>
     <script>
+        //variables
         let hStart
         let vStart
         let alphaAngle
@@ -98,6 +99,7 @@
         let y = []
         let t = []
 
+        //calculate button click event handler
         function onClickCalulate(){
             vStart = parseFloat(document.getElementById("start-speed").value)
             hStart = parseFloat(document.getElementById("start-heigth").value)
@@ -109,12 +111,66 @@
             plotlyDraw()
         }
 
-        var hoverFn = function(data) {
-            Plotly.Fx.hover(gd, []);
+        //main logic; calculate the points of the graph
+        function calcData(){            
+            let i = 0
+            do {
+                yActual = vStart * (i / 10) * sinAlpha - 5 * (i / 10) * (i / 10)
+                x[i] = vStart * (i / 10) * cosAlpha
+                t[i] = i / 10
+                y[i] = yActual
+                i++
+            }
+            while (yActual >= -hStart);
 
+            for (i = 0; i < y.length; i++) {
+                y[i] += hStart;
+            }
+            
+        }
+
+        //draw the graph
+        function plotlyDraw(){
+            TESTER = document.getElementById('tester')
+
+            const data = [
+                {
+                    x: x,
+                    y: y,
+                    hovertemplate: 'X: %{x:.2f}m<br>Y: %{y:.2f}m',
+                    hoverinfo: 'text',
+                    zsmooth: 'best'
+                }
+            ]
+
+            let layout = {
+                margin: {t: 0},
+                xaxis: {
+                    nticks: 10,
+                    autorange: true
+                },
+                yaxis: {
+                    scaleanchor: "x",
+                    autorange: true
+                }
+            };
+
+            Plotly.newPlot(TESTER, data, layout, {scrollZoom: true}).then(function(){
+                document.getElementById('data-table').style.display = 'block';
+            })
+
+            gd.on('plotly_hover', function(data) {
+                hoverFn(data);
+            })
+        }
+
+        //parameters of a point
+        function hoverFn(data) {
+            Plotly.Fx.hover(gd, []);
 
             let tempTime = 0
             let xTemp
+            
             do {
                 xTemp = vStart * (tempTime / 10) * cosAlpha
                 tempTime++;
@@ -134,65 +190,8 @@
             document.getElementById('param-4').innerHTML = (Math.sqrt(Math.pow(vx, 2) + Math.pow(vy, 2))).toFixed(2) + 'm/s'
             document.getElementById('param-5').innerHTML = ((2 * vStart * sinAlpha) / 10).toFixed(2) + 's'
             document.getElementById('param-6').innerHTML = ((Math.pow(vStart, 2)*Math.sin(2*alphaAngle))/10).toFixed(2) + 'm'
-            document.getElementById('param-7').innerHTML = ((Math.pow(vStart, 2) * Math.pow(sinAlpha, 2)) / 2 * 10).toFixed(2) + 'm'
+            document.getElementById('param-7').innerHTML = (((Math.pow(vStart, 2) * Math.pow(sinAlpha, 2)) / 2 * 10) / 100).toFixed(2) + 'm'
         };
-
-        function calcData(){            
-            let i = 0
-            do {
-                yActual = vStart * (i / 10) * sinAlpha - 5 * (i / 10) * (i / 10)
-                x[i] = vStart * (i / 10) * cosAlpha
-                t[i] = i / 10
-                y[i] = yActual
-                i++
-            }
-            while (yActual >= -hStart);
-
-            for (i = 0; i < y.length; i++) {
-                y[i] += hStart;
-            }
-            
-        }
-
-        function plotlyDraw(){
-            TESTER = document.getElementById('tester')
-
-            const data = [
-                {
-                    x: x,
-                    y: y,
-                    hovertemplate: 'X: %{x:.2f}m<br>Y: %{y:.2f}m',
-                    hoverinfo: 'text',
-                    zsmooth: 'best'
-                }
-            ]
-
-            let layout = {
-                //width: 800,
-                //height: 500,
-                margin: {t: 0},
-                xaxis: {
-                    nticks: 10,
-                    //range: [0, 300],
-                    autorange: true
-                },
-                yaxis: {
-                    scaleanchor: "x",
-                    //range: [0, 100],
-                    autorange: true
-                }
-            };
-
-            Plotly.newPlot(TESTER, data, layout, {scrollZoom: true}).then(function(){
-                document.getElementById('data-table').style.display = 'block';
-            })
-
-            gd.on('plotly_hover', function(data) {
-                //var pointNum = data.points[0].pointNumber;
-                var pointNum = data;
-                hoverFn(data);
-            })
-        }
     </script>
 </body>
 </html>
